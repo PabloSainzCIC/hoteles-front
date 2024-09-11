@@ -18,10 +18,10 @@
   <style scoped>
   h1 {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0px;
   }
   
   p {
-    margin-bottom: 2rem;
+    margin-bottom: 0px;
   }
   </style>

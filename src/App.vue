@@ -52,7 +52,7 @@ import { RouterLink, RouterView } from 'vue-router'
 /* Responsividad para pantallas grandes */
 @media (min-width: 1024px) {
   .nav {
-    gap: 2rem;
+    gap: 0px;
   }
 
   .header-content {
