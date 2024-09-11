@@ -5,7 +5,7 @@
       <div class="table-container">
         <div class="button-container">
           <button class="btn" @click="startCreating">Crear</button>
-          <button class="btn" :disabled="!selectedTipo" @click="openDeleteModal">Eliminar</button>
+          <button class="btn" :disabled="!isDeleteEnabled" @click="openDeleteModal">Eliminar</button>
         </div>
         <table class="tipos-table">
           <thead>
@@ -43,13 +43,19 @@
           <input id="descripcion" v-model="selectedTipo.descripcion" type="text" :disabled="!isDetailsEnabled" />
         </div>
         <div class="form-group">
-          <label for="minimoMetrosCuadrados">M² Mínimos:</label>
-          <input id="minimoMetrosCuadrados" v-model="selectedTipo.minimoMetrosCuadrados" type="number" :disabled="!isDetailsEnabled" />
-        </div>
-        <div class="form-group">
-          <label for="minimoPrecio">Precio Mínimo:</label>
-          <input id="minimoPrecio" v-model="selectedTipo.minimoPrecio" type="number" :disabled="!isDetailsEnabled" />
-        </div>
+  <label for="minimoMetrosCuadrados">M² Mínimos:</label>
+  <div class="input-with-unit small-input">
+    <input id="minimoMetrosCuadrados" v-model="selectedTipo.minimoMetrosCuadrados" type="number" :disabled="!isDetailsEnabled" />
+    <span>m²</span>
+  </div>
+</div>
+<div class="form-group">
+  <label for="minimoPrecio">Precio Mínimo:</label>
+  <div class="input-with-unit small-input">
+    <input id="minimoPrecio" v-model="selectedTipo.minimoPrecio" type="number" :disabled="!isDetailsEnabled" />
+    <span>€</span>
+  </div>
+</div>
         <div class="button-container">
           <button class="btn btn-apply" @click="isCreating ? saveNewTipo() : applyChanges()" :disabled="!isDetailsEnabled">{{ isCreating ? 'Guardar' : 'Guardar' }}</button>
           <button class="btn btn-cancel" @click="cancelChanges" :disabled="!isDetailsEnabled">Cancelar</button>
@@ -78,7 +84,7 @@
 
     <!-- Toast de notificación -->
     <div v-if="isToastVisible" class="toast">
-      <p>Nuevo registro creado exitosamente</p>
+      <p>{{ toastMessage }}</p>
     </div>
   </div>
 </template>
@@ -97,6 +103,8 @@ export default {
     const isCreating = ref(false);
     const isToastVisible = ref(false);
     const isDetailsEnabled = ref(false);
+    const isDeleteEnabled = ref(false);
+    const toastMessage = ref('');
 
     onMounted(async () => {
       try {
@@ -112,12 +120,14 @@ export default {
       originalTipo.value = { ...tipo };
       isCreating.value = false;
       isDetailsEnabled.value = true;
+      isDeleteEnabled.value = true;
     };
 
     const startCreating = () => {
       selectedTipo.value = { nombreTipo: '', descripcion: '', minimoMetrosCuadrados: 0, minimoPrecio: 0 };
       isCreating.value = true;
       isDetailsEnabled.value = true;
+      isDeleteEnabled.value = false;
     };
 
     const openDeleteModal = () => {
@@ -142,6 +152,7 @@ export default {
           selectedTipo.value = { nombreTipo: '', descripcion: '', minimoMetrosCuadrados: 0, minimoPrecio: 0 };
           closeDeleteModal();
           isDetailsEnabled.value = false;
+          isDeleteEnabled.value = false;
         } catch (error) {
           if (error.response && error.response.status === 409) {
             isErrorModalOpen.value = true;
@@ -160,6 +171,8 @@ export default {
           const response = await axios.get('/api/tipo-habitaciones');
           tipos.value = response.data;
           originalTipo.value = { ...selectedTipo.value };
+          toastMessage.value = 'Registro modificado exitosamente';
+          showToast();
         } catch (error) {
           console.error('Error updating tipo:', error);
         }
@@ -171,6 +184,7 @@ export default {
         await axios.post('/api/tipo-habitaciones', selectedTipo.value);
         const response = await axios.get('/api/tipo-habitaciones');
         tipos.value = response.data;
+        toastMessage.value = 'Nuevo registro creado exitosamente';
         showToast();
         cancelChanges();
       } catch (error) {
@@ -179,13 +193,11 @@ export default {
     };
 
     const cancelChanges = () => {
-      if (originalTipo.value) {
-        selectedTipo.value = { ...originalTipo.value };
-      } else {
-        selectedTipo.value = { nombreTipo: '', descripcion: '', minimoMetrosCuadrados: 0, minimoPrecio: 0 };
-      }
+      selectedTipo.value = { nombreTipo: '', descripcion: '', minimoMetrosCuadrados: 0, minimoPrecio: 0 };
+      originalTipo.value = null;
       isCreating.value = false;
       isDetailsEnabled.value = false;
+      isDeleteEnabled.value = false;
     };
 
     const showToast = () => {
@@ -204,6 +216,8 @@ export default {
       isCreating,
       isToastVisible,
       isDetailsEnabled,
+      isDeleteEnabled,
+      toastMessage,
       selectTipo,
       startCreating,
       openDeleteModal,
@@ -354,6 +368,21 @@ input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.input-with-unit {
+  display: flex;
+  align-items: center;
+}
+
+.input-with-unit input {
+  text-align: right;
+}
+.input-with-unit.small-input input {
+  width: 80px; /* Ajusta el ancho según sea necesario */
+}
+.input-with-unit span {
+  margin-left: 0.5rem;
 }
 
 .button-container {
