@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" style="margin-top: 90px;">
     <h1>Habitaciones</h1>
     <div class="main-content">
       <div class="table-container">
@@ -10,100 +10,114 @@
         <table class="habitaciones-table">
           <thead>
             <tr>
-              <th class="nowrap">Hotel</th>
-              <th class="right-align nowrap">Planta</th>
-              <th class="right-align nowrap">Número</th>
-              <th class="nowrap">Pasillo</th>
-              <th class="nowrap">Tipo</th>
-              <th class="nowrap">Descripción</th>
-              <th class="nowrap">Disponible</th>
-              <th class="right-align nowrap">€/Noche</th>
-              <th class="nowrap">Calefacción</th>
-              <th class="nowrap">Aire Acondicionado</th>
-              <th class="nowrap">Nevera</th>
-              <th class="right-align nowrap">m²</th>
-              <th class="right-align nowrap">Capacidad Máxima</th>
+              <th>Hotel</th>
+              <th>Planta</th>
+              <th>Número</th>
+              <th>Pasillo</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+              <th>Precio/Noche</th>
+              <th>Superficie</th>
+              <th>Capacidad Máxima</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="habitacion in habitaciones" :key="habitacion.id" @click="selectHabitacion(habitacion)">
-              <td class="nowrap">{{ habitacion.hotel }}</td>
-              <td class="right-align nowrap">{{ habitacion.planta }}</td>
-              <td class="right-align nowrap">{{ habitacion.numHabitacion }}</td>
-              <td class="nowrap">{{ habitacion.pasillo }}</td>
-              <td class="nowrap">{{ habitacion.tipoHabitacion.nombreTipo }}</td>
+            <tr 
+              v-for="habitacion in habitaciones" 
+              :key="habitacion.id"
+              :class="{ selected: selectedHabitacion && selectedHabitacion.id === habitacion.id }"
+              @click="selectHabitacion(habitacion)"
+            >
+              <td>{{ habitacion.hotel }}</td>
+              <td>{{ habitacion.planta }}</td>
+              <td>{{ habitacion.numHabitacion }}</td>
+              <td>{{ habitacion.pasillo }}</td>
+              <td>{{ habitacion.tipoHabitacion.nombreTipo }}</td>
               <td class="nowrap" :title="habitacion.descripcion">{{ habitacion.descripcion.length > 20 ? habitacion.descripcion.substring(0, 20) + '...' : habitacion.descripcion }}</td>
-              <td class="nowrap">{{ habitacion.disponible ? 'Sí' : 'No' }}</td>
-              <td class="right-align nowrap">{{ habitacion.precioNoche.toFixed(2) }} €</td>
-              <td class="nowrap">{{ habitacion.calefaccion ? 'Sí' : 'No' }}</td>
-              <td class="nowrap">{{ habitacion.aireAcondicionado ? 'Sí' : 'No' }}</td>
-              <td class="nowrap">{{ habitacion.nevera ? 'Sí' : 'No' }}</td>
-              <td class="right-align nowrap">{{ habitacion.metrosCuadrados }} m²</td>
-              <td class="right-align nowrap">{{ habitacion.capacidadMaxima }}</td>
+              <td>{{ habitacion.precioNoche }} €</td>
+              <td>{{ habitacion.metrosCuadrados }} m²</td>
+              <td>{{ habitacion.capacidadMaxima }}</td>
             </tr>
           </tbody>
         </table>
       </div>
       <!-- Nueva sección para detalles -->
-      <div class="details-container" style="margin-top: 10px;">
-        <h2>{{ isCreating ? 'Nueva Habitación' : 'Detalles de la Habitación' }}</h2>
+      <div class="details-container" style="margin-top: 50px; margin-bottom: 100px;margin-left: 50px">
+        <h2>{{ isCreating ? 'Nuevo' : 'Modificación' }}</h2>
         <div class="form-group">
           <label for="hotel">Hotel:</label>
           <input id="hotel" v-model="selectedHabitacion.hotel" type="text" :disabled="!isDetailsEnabled" />
+          <span v-if="!selectedHabitacion.hotel && isDetailsEnabled" class="error-message">El nombre del hotel es obligatorio</span>
         </div>
         <div class="form-group">
           <label for="planta">Planta:</label>
-          <input id="planta" v-model="selectedHabitacion.planta" type="number" :disabled="!isDetailsEnabled" />
+          <input id="planta" v-model="selectedHabitacion.planta" type="number" class="small-input right-align" :disabled="!isDetailsEnabled" />
+          <span v-if="selectedHabitacion.planta <= 0 && isDetailsEnabled" class="error-message">La planta debe ser mayor que 0</span>
         </div>
         <div class="form-group">
           <label for="numHabitacion">Número:</label>
-          <input id="numHabitacion" v-model="selectedHabitacion.numHabitacion" type="number" :disabled="!isDetailsEnabled" />
+          <input id="numHabitacion" v-model="selectedHabitacion.numHabitacion" type="number" class="small-input right-align" :disabled="!isDetailsEnabled" />
+          <span v-if="selectedHabitacion.numHabitacion <= 0 && isDetailsEnabled" class="error-message">El número de habitación debe ser mayor que 0</span>
         </div>
         <div class="form-group">
           <label for="pasillo">Pasillo:</label>
-          <input id="pasillo" v-model="selectedHabitacion.pasillo" type="text" :disabled="!isDetailsEnabled" />
+          <input id="pasillo" v-model="selectedHabitacion.pasillo" type="number" class="small-input right-align" :disabled="!isDetailsEnabled" />
+          <span v-if="selectedHabitacion.pasillo <= 0 && isDetailsEnabled" class="error-message">El número de pasillo debe ser mayor que 0</span>
         </div>
         <div class="form-group">
           <label for="tipoHabitacion">Tipo:</label>
-          <input id="tipoHabitacion" v-model="selectedHabitacion.tipoHabitacion.nombreTipo" type="text" :disabled="!isDetailsEnabled" />
+          <select id="tipoHabitacion" v-model="selectedHabitacion.tipoHabitacion.id" :disabled="!isDetailsEnabled">
+            <option value="" disabled>Seleccione un tipo</option>
+            <option v-for="tipo in tiposHabitacion" :key="tipo.id" :value="tipo.id">{{ tipo.nombreTipo }}</option>
+          </select>
+          <span v-if="!selectedHabitacion.tipoHabitacion.id && isDetailsEnabled" class="error-message">El tipo de habitación es obligatorio</span>
         </div>
         <div class="form-group">
           <label for="descripcion">Descripción:</label>
           <input id="descripcion" v-model="selectedHabitacion.descripcion" type="text" :disabled="!isDetailsEnabled" />
         </div>
         <div class="form-group">
-          <label for="disponible">Disponible:</label>
-          <input id="disponible" v-model="selectedHabitacion.disponible" type="checkbox" :disabled="!isDetailsEnabled" />
+          <label for="disponible">Disponible:
+            <input id="disponible" v-model="selectedHabitacion.disponible" type="checkbox" :disabled="!isDetailsEnabled" class="checkbox-left" />
+          </label>
         </div>
         <div class="form-group">
-          <label for="precioNoche">€/Noche:</label>
-          <input id="precioNoche" v-model="selectedHabitacion.precioNoche" type="number" :disabled="!isDetailsEnabled" />
+          <label for="precioNoche">Precio/Noche:</label>
+          <input id="precioNoche" v-model="selectedHabitacion.precioNoche" type="number" class="small-input right-align" :disabled="!isDetailsEnabled" />
+          <span v-if="selectedHabitacion.precioNoche <= 0 && isDetailsEnabled" class="error-message">El precio por noche debe ser mayor que 0</span>
         </div>
         <div class="form-group">
-          <label for="calefaccion">Calefacción:</label>
-          <input id="calefaccion" v-model="selectedHabitacion.calefaccion" type="checkbox" :disabled="!isDetailsEnabled" />
+          <label for="calefaccion">Calefacción:
+            <input id="calefaccion" v-model="selectedHabitacion.calefaccion" type="checkbox" :disabled="!isDetailsEnabled" class="checkbox-left" />
+          </label>
         </div>
         <div class="form-group">
-          <label for="aireAcondicionado">Aire Acondicionado:</label>
-          <input id="aireAcondicionado" v-model="selectedHabitacion.aireAcondicionado" type="checkbox" :disabled="!isDetailsEnabled" />
+          <label for="aireAcondicionado">Aire Acondicionado:
+            <input id="aireAcondicionado" v-model="selectedHabitacion.aireAcondicionado" type="checkbox" :disabled="!isDetailsEnabled" class="checkbox-left" />
+          </label>
         </div>
         <div class="form-group">
-          <label for="nevera">Nevera:</label>
-          <input id="nevera" v-model="selectedHabitacion.nevera" type="checkbox" :disabled="!isDetailsEnabled" />
+          <label for="nevera">Nevera:
+            <input id="nevera" v-model="selectedHabitacion.nevera" type="checkbox" :disabled="!isDetailsEnabled" class="checkbox-left" />
+          </label>
         </div>
         <div class="form-group">
-          <label for="metrosCuadrados">m²:</label>
+          <label for="metrosCuadrados">Superficie:</label>
           <div class="input-with-unit small-input">
-            <input id="metrosCuadrados" v-model="selectedHabitacion.metrosCuadrados" type="number" :disabled="!isDetailsEnabled" />
+            <input id="metrosCuadrados" v-model="selectedHabitacion.metrosCuadrados" type="number" class="right-align" :disabled="!isDetailsEnabled" />
             <span>m²</span>
           </div>
+          <span v-if="selectedHabitacion.metrosCuadrados <= 0 && isDetailsEnabled" class="error-message">La superficie debe ser mayor que 0</span>
         </div>
         <div class="form-group">
           <label for="capacidadMaxima">Capacidad Máxima:</label>
-          <input id="capacidadMaxima" v-model="selectedHabitacion.capacidadMaxima" type="number" :disabled="!isDetailsEnabled" />
+          <input id="capacidadMaxima" v-model="selectedHabitacion.capacidadMaxima" type="number" class="small-input right-align" :disabled="!isDetailsEnabled" />
+          <span v-if="selectedHabitacion.capacidadMaxima <= 0 && isDetailsEnabled" class="error-message">La capacidad máxima debe ser mayor que 0</span>
         </div>
         <div class="button-container">
-          <button class="btn btn-apply" @click="isCreating ? saveNewHabitacion() : applyChanges()" :disabled="!isDetailsEnabled">{{ isCreating ? 'Guardar' : 'Guardar' }}</button>
+          <button class="btn btn-apply" @click="isCreating ? saveNewHabitacion() : applyChanges()" :disabled="!isFormValid">
+            {{ isCreating ? 'Guardar' : 'Guardar' }}
+          </button>
           <button class="btn btn-cancel" @click="cancelChanges" :disabled="!isDetailsEnabled">Cancelar</button>
         </div>
       </div>
@@ -136,19 +150,20 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 export default {
   name: 'HabitacionesList',
   setup() {
     const habitaciones = ref([]);
-    const selectedHabitacion = ref({
+    const tiposHabitacion = ref([]);
+    const defaultHabitacion = {
       hotel: '',
       planta: 0,
       numHabitacion: 0,
-      pasillo: '',
-      tipoHabitacion: { nombreTipo: '' },
+      pasillo: 0,
+      tipoHabitacion: { id: '', nombreTipo: '' },
       descripcion: '',
       disponible: false,
       precioNoche: 0,
@@ -157,7 +172,8 @@ export default {
       nevera: false,
       metrosCuadrados: 0,
       capacidadMaxima: 0,
-    });
+    };
+    const selectedHabitacion = ref({ ...defaultHabitacion });
     const originalHabitacion = ref(null);
     const isModalOpen = ref(false);
     const isErrorModalOpen = ref(false);
@@ -169,10 +185,13 @@ export default {
 
     onMounted(async () => {
       try {
-        const response = await axios.get('/api/habitaciones');
-        habitaciones.value = response.data;
+        const responseHabitaciones = await axios.get('/api/habitaciones');
+        habitaciones.value = responseHabitaciones.data;
+
+        const responseTipos = await axios.get('/api/tipo-habitaciones');
+        tiposHabitacion.value = responseTipos.data;
       } catch (error) {
-        console.error('Error al obtener las habitaciones:', error);
+        console.error('Error al obtener los datos:', error);
       }
     });
 
@@ -185,78 +204,16 @@ export default {
     };
 
     const startCreating = () => {
-      selectedHabitacion.value = {
-        hotel: '',
-        planta: 0,
-        numHabitacion: 0,
-        pasillo: '',
-        tipoHabitacion: { nombreTipo: '' },
-        descripcion: '',
-        disponible: false,
-        precioNoche: 0,
-        calefaccion: false,
-        aireAcondicionado: false,
-        nevera: false,
-        metrosCuadrados: 0,
-        capacidadMaxima: 0,
-      };
+      selectedHabitacion.value = { ...defaultHabitacion };
       isCreating.value = true;
       isDetailsEnabled.value = true;
       isDeleteEnabled.value = false;
-    };
-
-    const openDeleteModal = () => {
-      if (selectedHabitacion.value) {
-        isModalOpen.value = true;
-      }
-    };
-
-    const closeDeleteModal = () => {
-      isModalOpen.value = false;
-    };
-
-    const closeErrorModal = () => {
-      isErrorModalOpen.value = false;
-    };
-
-    const deleteHabitacion = async () => {
-      if (selectedHabitacion.value) {
-        try {
-          await axios.delete(`/api/habitaciones/${selectedHabitacion.value.id}`);
-          habitaciones.value = habitaciones.value.filter(habitacion => habitacion.id !== selectedHabitacion.value.id);
-          selectedHabitacion.value = {
-            hotel: '',
-            planta: 0,
-            numHabitacion: 0,
-            pasillo: '',
-            tipoHabitacion: { nombreTipo: '' },
-            descripcion: '',
-            disponible: false,
-            precioNoche: 0,
-            calefaccion: false,
-            aireAcondicionado: false,
-            nevera: false,
-            metrosCuadrados: 0,
-            capacidadMaxima: 0,
-          };
-          closeDeleteModal();
-          isDetailsEnabled.value = false;
-          isDeleteEnabled.value = false;
-        } catch (error) {
-          if (error.response && error.response.status === 409) {
-            isErrorModalOpen.value = true;
-          } else {
-            console.error('Error al eliminar la habitación:', error);
-          }
-        }
-      }
     };
 
     const applyChanges = async () => {
       if (selectedHabitacion.value) {
         try {
           await axios.put(`/api/habitaciones/${selectedHabitacion.value.id}`, selectedHabitacion.value);
-          // Refresh the list of habitaciones
           const response = await axios.get('/api/habitaciones');
           habitaciones.value = response.data;
           originalHabitacion.value = { ...selectedHabitacion.value };
@@ -281,26 +238,26 @@ export default {
       }
     };
 
-    const cancelChanges = () => {
-      if (originalHabitacion.value) {
-        selectedHabitacion.value = { ...originalHabitacion.value };
-      } else {
-        selectedHabitacion.value = {
-          hotel: '',
-          planta: 0,
-          numHabitacion: 0,
-          pasillo: '',
-          tipoHabitacion: { nombreTipo: '' },
-          descripcion: '',
-          disponible: false,
-          precioNoche: 0,
-          calefaccion: false,
-          aireAcondicionado: false,
-          nevera: false,
-          metrosCuadrados: 0,
-          capacidadMaxima: 0,
-        };
+    const deleteHabitacion = async () => {
+      if (selectedHabitacion.value && selectedHabitacion.value.id) {
+        try {
+          await axios.delete(`/api/habitaciones/${selectedHabitacion.value.id}`);
+          const response = await axios.get('/api/habitaciones');
+          habitaciones.value = response.data;
+          toastMessage.value = 'Registro eliminado exitosamente';
+          showToast();
+          closeDeleteModal();
+          cancelChanges();
+        } catch (error) {
+          console.error('Error al eliminar la habitación:', error);
+          isErrorModalOpen.value = true;
+        }
       }
+    };
+
+    const cancelChanges = () => {
+      selectedHabitacion.value = { ...defaultHabitacion };
+      originalHabitacion.value = null;
       isCreating.value = false;
       isDetailsEnabled.value = false;
       isDeleteEnabled.value = false;
@@ -313,8 +270,32 @@ export default {
       }, 3000);
     };
 
+    const openDeleteModal = () => {
+      isModalOpen.value = true;
+    };
+
+    const closeDeleteModal = () => {
+      isModalOpen.value = false;
+    };
+
+    const closeErrorModal = () => {
+      isErrorModalOpen.value = false;
+    };
+
+    const isFormValid = computed(() => {
+      return selectedHabitacion.value.hotel &&
+        selectedHabitacion.value.planta > 0 &&
+        selectedHabitacion.value.numHabitacion > 0 &&
+        selectedHabitacion.value.pasillo >= 0 &&
+        selectedHabitacion.value.tipoHabitacion.id &&
+        selectedHabitacion.value.precioNoche > 0 &&
+        selectedHabitacion.value.metrosCuadrados > 0 &&
+        selectedHabitacion.value.capacidadMaxima > 0;
+    });
+
     return {
       habitaciones,
+      tiposHabitacion,
       selectedHabitacion,
       originalHabitacion,
       isModalOpen,
@@ -326,19 +307,19 @@ export default {
       toastMessage,
       selectHabitacion,
       startCreating,
+      applyChanges,
+      saveNewHabitacion,
+      deleteHabitacion,
+      cancelChanges,
+      showToast,
       openDeleteModal,
       closeDeleteModal,
       closeErrorModal,
-      deleteHabitacion,
-      applyChanges,
-      saveNewHabitacion,
-      cancelChanges,
-      showToast
+      isFormValid
     };
   }
 }
 </script>
-
 <style scoped>
 .container {
   padding: 0px;
@@ -373,7 +354,12 @@ th, td {
 th {
   background-color: #f9f9f9;
 }
-
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
 tbody tr:hover {
   background-color: #f1f1f1;
 }
@@ -474,7 +460,10 @@ input {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
+.input-with-unit {
+  display: flex;
+  align-items: center;
+}
 .input-with-unit.small-input input {
   width: 80px; /* Ajusta el ancho según sea necesario */
 }
@@ -483,6 +472,9 @@ input {
   display: flex;
   gap: 0.5rem;
   margin-top: 0px;
+}
+.small-input {
+  width: 80px; /* Ajusta el ancho según sea necesario */
 }
 
 .btn-apply {
@@ -496,7 +488,19 @@ input {
 .btn-cancel {
   background-color: #6c757d;
 }
+.right-align {
+  text-align: right;
+}
 
+.checkbox-container {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-left {
+  margin-left: 0;
+  margin-top: 0.5rem;
+}
 .btn-cancel:hover {
   background-color: #5a6268;
 }
@@ -504,12 +508,14 @@ input {
 /* Estilo para el Toast */
 .toast {
   position: fixed;
-  top: 1rem;
+  top: 50%;
   right: 1rem;
+  transform: translateY(-50%);
   background-color: #28a745;
   color: white;
   padding: 1rem;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Asegura que el toast esté por encima de otros elementos */
 }
 </style>

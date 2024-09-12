@@ -33,11 +33,12 @@
       </div>
       <!-- Nueva sección para detalles, siempre visible -->
       <div class="details-container">
-        <h2>{{ isCreating ? 'Nuevo Registro' : 'Detalles del Tipo de Habitación' }}</h2>
+        <h2>{{ isCreating ? 'Nuevo Registro' : 'Visualización' }}</h2>
         <div class="form-group">
-          <label for="nombreTipo">Nombre:</label>
-          <input id="nombreTipo" v-model="selectedTipo.nombreTipo" type="text" :disabled="!isDetailsEnabled" />
-        </div>
+  <label for="nombreTipo">Nombre:</label>
+  <input id="nombreTipo" v-model="selectedTipo.nombreTipo" type="text" :disabled="!isDetailsEnabled" />
+  <span v-if="!selectedTipo.nombreTipo && isDetailsEnabled" class="error-message">El nombre no puede estar vacío</span>
+</div>
         <div class="form-group">
           <label for="descripcion">Descripción:</label>
           <input id="descripcion" v-model="selectedTipo.descripcion" type="text" :disabled="!isDetailsEnabled" />
@@ -57,8 +58,10 @@
   </div>
 </div>
         <div class="button-container">
-          <button class="btn btn-apply" @click="isCreating ? saveNewTipo() : applyChanges()" :disabled="!isDetailsEnabled">{{ isCreating ? 'Guardar' : 'Guardar' }}</button>
-          <button class="btn btn-cancel" @click="cancelChanges" :disabled="!isDetailsEnabled">Cancelar</button>
+          <button class="btn btn-apply" @click="isCreating ? saveNewTipo() : applyChanges()" :disabled="!isDetailsEnabled || !selectedTipo.nombreTipo">
+  {{ isCreating ? 'Guardar' : 'Guardar' }}
+          </button>
+<button class="btn btn-cancel" @click="cancelChanges" :disabled="!isDetailsEnabled">Cancelar</button>
         </div>
       </div>
     </div>
@@ -300,7 +303,12 @@ tbody tr.selected {
   background-color: #d6d6d6;
   cursor: not-allowed;
 }
-
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
 /* Estilo para el modal */
 .modal-overlay {
   position: fixed;
@@ -410,12 +418,14 @@ input {
 /* Estilo para el Toast */
 .toast {
   position: fixed;
-  top: 1rem;
+  top: 50%;
   right: 1rem;
+  transform: translateY(-50%);
   background-color: #28a745;
   color: white;
   padding: 1rem;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Asegura que el toast esté por encima de otros elementos */
 }
 </style>

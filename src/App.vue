@@ -1,23 +1,42 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+
+const route = useRoute();
 </script>
 
 <template>
-
-    <nav class="nav">
-      <RouterLink to="/tipos" class="nav-link">TIPOS</RouterLink>
-      <RouterLink to="/habitaciones" class="nav-link">HABITACIONES</RouterLink>
-    </nav>
-  
-
+  <nav class="nav">
+    <RouterLink to="/tipos" class="nav-link">TIPOS</RouterLink>
+    <RouterLink to="/habitaciones" class="nav-link">HABITACIONES</RouterLink>
+  </nav>
 
   <main>
+    <!-- Mostrar la imagen solo en la ruta / -->
+    <img v-if="route.path === '/'" src="/hotel.jpeg" alt="Imagen de Inicio" class="full-screen-image" />
     <RouterView />
   </main>
+
+  <footer class="footer">
+    <a href="#" class="footer-link">Política de privacidad</a>
+    <a href="#" class="footer-link">Términos de servicio</a>
+    <a href="#" class="footer-link">Contacto</a>
+    <a href="#" class="footer-link">Acerca de</a>
+  </footer>
 </template>
 
 <style scoped>
-
+/* Estilo de la imagen de inicio para ocupar toda la pantalla */
+.full-screen-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Asegura que la imagen cubra toda la pantalla sin distorsionarse */
+  image-rendering: -webkit-optimize-contrast; /* Mejora la calidad de la imagen en navegadores WebKit */
+  image-rendering: optimizeQuality; /* Mejora la calidad de la imagen en otros navegadores */
+  z-index: -1; /* Coloca la imagen detrás de otros elementos */
+}
 
 /* Estilo de la barra de navegación */
 .nav {
@@ -47,17 +66,25 @@ import { RouterLink, RouterView } from 'vue-router'
   background-color: #0056b3; /* Color de fondo al pasar el ratón o cuando está activo */
 }
 
+/* Estilo del pie de página */
+.footer {
+  display: flex;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 1rem 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Asegura que el pie de página esté sobre otros elementos */
+}
 
-
-/* Responsividad para pantallas grandes */
-@media (min-width: 1024px) {
-  .nav {
-    gap: 0px;
-  }
-
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+/* Estilo de los enlaces del pie de página */
+.footer-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s;
 }
 </style>
