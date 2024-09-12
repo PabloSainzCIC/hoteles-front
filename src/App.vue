@@ -12,7 +12,7 @@ const route = useRoute();
 
   <main>
     <!-- Mostrar la imagen solo en la ruta / -->
-    <img v-if="route.path === '/'" src="/hotel.jpeg" alt="Imagen de Inicio" class="full-screen-image" />
+    <img v-if="route.path === '/'" src="/DALL·E 2024-09-12 17.35.29 - A luxury modern hotel with a sleek glass facade, located by the ocean with palm trees and a sunset in the background. The hotel has a stylish entrance.webp" alt="Imagen de Inicio" class="full-screen-image" />
     <RouterView />
   </main>
 
@@ -33,8 +33,6 @@ const route = useRoute();
   width: 100%;
   height: 100%;
   object-fit: cover; /* Asegura que la imagen cubra toda la pantalla sin distorsionarse */
-  image-rendering: -webkit-optimize-contrast; /* Mejora la calidad de la imagen en navegadores WebKit */
-  image-rendering: optimizeQuality; /* Mejora la calidad de la imagen en otros navegadores */
   z-index: -1; /* Coloca la imagen detrás de otros elementos */
 }
 
